@@ -89,13 +89,16 @@ class OverlayService : Service() {
             ))
         }
 
-        // 透明 WebView 加载角色
+        // 透明 WebView 加载角色（触摸穿透，交给外层 root 处理拖拽/点击）
         webView = WebView(this).apply {
             settings.javaScriptEnabled = true
             setBackgroundColor(Color.TRANSPARENT)
             webViewClient = WebViewClient()
             isVerticalScrollBarEnabled = false
             isHorizontalScrollBarEnabled = false
+            isClickable = false
+            isFocusable = false
+            setOnTouchListener { _, _ -> false }
             loadUrl("file:///android_asset/pet.html")
         }
 
@@ -106,8 +109,8 @@ class OverlayService : Service() {
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
             ))
             addView(webView, FrameLayout.LayoutParams(
-                dp(180),
-                dp(320),
+                dp(120),
+                dp(220),
                 Gravity.BOTTOM or Gravity.END
             ))
         }
