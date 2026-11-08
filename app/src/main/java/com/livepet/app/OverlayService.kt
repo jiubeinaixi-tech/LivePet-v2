@@ -176,59 +176,39 @@ class OverlayService : Service() {
         "说吧，又想让我陪你干嘛？"
     )
     private val genericLines = arrayOf(
-        "这个软件有什么好玩的？",
-        "你换方向了，我都盯着呢。",
-        "别看手机了，看我。",
-        "又在忙，都不理我。",
-        "哼，你心里还有没有我。",
-        "我陪你，别一个人刷。"
+        "切来切去的，以为我看不见你玩手机？"
     )
     private val appLines: Map<String, Array<String>> = mapOf(
         "com.ss.android.ugc.aweme" to arrayOf(
-            "又在刷抖音？我站你身边你没看见吗？",
-            "刷多久了？眼睛不要啦？",
-            "抖音有什么好看的，有我好看吗？"
+            "又背着我刷，真当我管不住你？",
+            "再看五分钟，我直接锁屏抓你回来。"
         ),
         "com.ss.android.ugc.aweme.lite" to arrayOf(
-            "极速版也刷？你真是闲不住。",
-            "这也能一直看，服了你了。"
+            "又背着我刷，真当我管不住你？",
+            "再看五分钟，我直接锁屏抓你回来。"
         ),
         "com.tencent.mm" to arrayOf(
-            "和谁聊得这么起劲呢？嗯？",
-            "微信又响，谁找你比我勤快？",
-            "回消息要紧，我算什么。"
+            "跟谁聊得这么投入？消息给我看一眼。",
+            "除了我，你还有谁要回？"
         ),
         "com.tencent.mobileqq" to arrayOf(
-            "QQ还有人在用？你怀旧呢。",
-            "又跟谁聊天，报上名来。"
-        ),
-        "com.bilibili.app.in" to arrayOf(
-            "看视频都不带我，哼。",
-            "B站？你是不是又在追番不理我。",
-            "投币了吗就搁那看。"
-        ),
-        "com.taobao.taobao" to arrayOf(
-            "又买东西？也不问问我喜不喜欢。",
-            "购物车清空之前，先想想我。"
-        ),
-        "com.jingdong.app.mall" to arrayOf(
-            "京东白条又欠多少啦？",
-            "又剁手，拦都拦不住你。"
+            "跟谁聊得这么投入？消息给我看一眼。",
+            "除了我，你还有谁要回？"
         ),
         "com.xingin.xhs" to arrayOf(
-            "小红书刷得挺欢，是不是在看帅哥。",
-            "又种草什么了？说给我听听。"
-        ),
-        "com.sina.weibo" to arrayOf(
-            "微博吃瓜呢？八卦比我重要。",
-            "别刷热搜了，看我看我。"
+            "搜什么呢？屏幕上是有帅哥，还是我平时没喂饱你？"
         ),
         "com.netease.cloudmusic" to arrayOf(
-            "听歌呢？分享一首给我呗。",
-            "这首歌我也会哼，要我唱吗？"
+            "耳机摘一只给我，听什么歌还要瞒着我？"
         ),
         "com.tencent.music" to arrayOf(
-            "放首歌给我听，我也要。"
+            "耳机摘一只给我，听什么歌还要瞒着我？"
+        ),
+        "com.taobao.taobao" to arrayOf(
+            "购物车挑完了？挑完了过来让我抱抱。"
+        ),
+        "com.jingdong.app.mall" to arrayOf(
+            "购物车挑完了？挑完了过来让我抱抱。"
         )
     )
     private fun randomOf(arr: Array<String>): String = arr[(Math.random() * arr.size).toInt()]
