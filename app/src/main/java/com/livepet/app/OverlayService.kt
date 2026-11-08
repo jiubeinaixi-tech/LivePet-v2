@@ -1,5 +1,4 @@
 package com.livepet.app
-
 import android.annotation.SuppressLint
 import android.app.Notification
 import android.app.NotificationChannel
@@ -19,9 +18,8 @@ import android.view.Gravity
 import android.view.MotionEvent
 import android.view.View
 import android.view.WindowManager
-import android.webkit.WebView
-import android.webkit.WebViewClient
 import android.widget.FrameLayout
+import android.widget.ImageView
 import android.widget.TextView
 import java.util.SortedMap
 
@@ -31,8 +29,7 @@ class OverlayService : Service() {
     private var petView: View? = null
     private var bubbleView: TextView? = null
     private var bubbleContainer: FrameLayout? = null
-    private lateinit var webView: WebView
-
+    private lateinit var petImage: ImageView
     private val handler = Handler(Looper.getMainLooper())
     private var lastForegroundPkg: String? = null
 
@@ -46,6 +43,8 @@ class OverlayService : Service() {
     companion object {
         const val CHANNEL_ID = "livepet_fgs"
         const val NOTIFICATION_ID = 1
+        const val PET_W = 110
+        const val PET_H = 200
     }
 
     override fun onBind(intent: Intent?): IBinder? = null
@@ -57,21 +56,20 @@ class OverlayService : Service() {
         setupOverlay()
     }
 
-    @SuppressLint("ClickableViewAccessibility", "SetJavaScriptEnabled")
+    @SuppressLint("ClickableViewAccessibility")
     private fun setupOverlay() {
         val layoutParams = WindowManager.LayoutParams(
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.WRAP_CONTENT,
             WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY,
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
-                    WindowManager.LayoutParams.FLAG_LAYOUT_NO_LIMITS,
+                    WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
         layoutParams.gravity = Gravity.BOTTOM or Gravity.END
         layoutParams.x = 0
         layoutParams.y = 0
 
-        // 气泡台词
         bubbleContainer = FrameLayout(this).apply {
             bubbleView = TextView(this@OverlayService).apply {
                 text = "哼，又来看我了？"
@@ -89,17 +87,9 @@ class OverlayService : Service() {
             ))
         }
 
-        // 透明 WebView 加载角色（触摸穿透，交给外层 root 处理拖拽/点击）
-        webView = WebView(this).apply {
-            settings.javaScriptEnabled = true
-            setBackgroundColor(Color.TRANSPARENT)
-            webViewClient = WebViewClient()
-            isVerticalScrollBarEnabled = false
-            isHorizontalScrollBarEnabled = false
-            isClickable = false
-            isFocusable = false
-            setOnTouchListener { _, _ -> false }
-            loadUrl("file:///android_asset/pet.html")
+        petImage = ImageView(this).apply {
+            setImageResource(R.drawable.pet)
+            scaleType = ImageView.ScaleType.FIT_CENTER
         }
 
         val root = FrameLayout(this).apply {
@@ -108,22 +98,19 @@ class OverlayService : Service() {
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
             ))
-            addView(webView, FrameLayout.LayoutParams(
-                dp(120),
-                dp(220),
+            addView(petImage, FrameLayout.LayoutParams(
+                dp(PET_W),
+                dp(PET_H),
                 Gravity.BOTTOM or Gravity.END
             ))
         }
 
-        // 拖拽
-        root.setOnTouchListener(object : View.OnTouchListener {
+        petImage.setOnTouchListener(object : View.OnTouchListener {
             private var initialX = 0
             private var initialY = 0
             private var touchX = 0f
             private var touchY = 0f
-            private var isDragging = false
             private var moved = false
-
             override fun onTouch(v: View, event: MotionEvent): Boolean {
                 when (event.action) {
                     MotionEvent.ACTION_DOWN -> {
@@ -131,7 +118,6 @@ class OverlayService : Service() {
                         initialY = layoutParams.y
                         touchX = event.rawX
                         touchY = event.rawY
-                        isDragging = false
                         moved = false
                         return true
                     }
@@ -139,7 +125,6 @@ class OverlayService : Service() {
                         val dx = event.rawX - touchX
                         val dy = event.rawY - touchY
                         if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
-                            isDragging = true
                             moved = true
                         }
                         layoutParams.x = initialX - dx.toInt()
@@ -179,8 +164,7 @@ class OverlayService : Service() {
                 usm.queryUsageStats(UsageStatsManager.INTERVAL_DAILY, now - 60_000, now)
                     ?: return null
             if (stats.isEmpty()) return null
-            val sorted: SortedMap<Long, android.app.usage.UsageStats> =
-                sortedMapOf()
+            val sorted: SortedMap<Long, android.app.usage.UsageStats> = sortedMapOf()
             for (s in stats) {
                 if (s.lastTimeUsed > 0) sorted[s.lastTimeUsed] = s
             }
