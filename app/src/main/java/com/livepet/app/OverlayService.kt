@@ -22,9 +22,7 @@ import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.TextView
 import java.util.SortedMap
-
 class OverlayService : Service() {
-
     private lateinit var windowManager: WindowManager
     private var petView: View? = null
     private var bubbleView: TextView? = null
@@ -32,30 +30,26 @@ class OverlayService : Service() {
     private lateinit var petImage: ImageView
     private val handler = Handler(Looper.getMainLooper())
     private var lastForegroundPkg: String? = null
-
     private val checkRunnable = object : Runnable {
         override fun run() {
             checkForegroundApp()
             handler.postDelayed(this, 1500)
         }
     }
-
     companion object {
         const val CHANNEL_ID = "livepet_fgs"
         const val NOTIFICATION_ID = 1
-        const val PET_W = 110
-        const val PET_H = 200
+        const val PET_W = 92
+        const val PET_H = 168
+        const val BUBBLE_H = 120
     }
-
     override fun onBind(intent: Intent?): IBinder? = null
-
     override fun onCreate() {
         super.onCreate()
         windowManager = getSystemService(Context.WINDOW_SERVICE) as WindowManager
         startForeground(NOTIFICATION_ID, buildNotification())
         setupOverlay()
     }
-
     @SuppressLint("ClickableViewAccessibility")
     private fun setupOverlay() {
         val layoutParams = WindowManager.LayoutParams(
@@ -66,45 +60,42 @@ class OverlayService : Service() {
                     WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
             PixelFormat.TRANSLUCENT
         )
-        layoutParams.gravity = Gravity.BOTTOM or Gravity.END
+        layoutParams.gravity = Gravity.TOP or Gravity.START
         layoutParams.x = 0
         layoutParams.y = 0
-
-        bubbleContainer = FrameLayout(this).apply {
+        val bubbleContainer = FrameLayout(this).apply {
             bubbleView = TextView(this@OverlayService).apply {
                 text = "哼，又来看我了？"
-                textSize = 14f
+                textSize = 13f
                 setTextColor(Color.parseColor("#5B5B5B"))
                 setBackgroundResource(R.drawable.bubble_bg)
-                setPadding(28, 18, 28, 18)
+                setPadding(20, 12, 20, 12)
                 visibility = View.GONE
                 alpha = 0f
             }
             addView(bubbleView, FrameLayout.LayoutParams(
                 FrameLayout.LayoutParams.WRAP_CONTENT,
                 FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+                Gravity.TOP or Gravity.CENTER_HORIZONTAL
             ))
         }
-
         petImage = ImageView(this).apply {
             setImageResource(R.drawable.pet)
             scaleType = ImageView.ScaleType.FIT_CENTER
         }
-
         val root = FrameLayout(this).apply {
-            addView(bubbleContainer, FrameLayout.LayoutParams(
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                FrameLayout.LayoutParams.WRAP_CONTENT,
-                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
-            ))
             addView(petImage, FrameLayout.LayoutParams(
                 dp(PET_W),
                 dp(PET_H),
-                Gravity.BOTTOM or Gravity.END
+                Gravity.BOTTOM or Gravity.CENTER_HORIZONTAL
+            ))
+            addView(bubbleContainer, FrameLayout.LayoutParams(
+                FrameLayout.LayoutParams.WRAP_CONTENT,
+                dp(BUBBLE_H),
+                Gravity.TOP or Gravity.CENTER_HORIZONTAL
             ))
         }
-
+        this.bubbleContainer = bubbleContainer
         petImage.setOnTouchListener(object : View.OnTouchListener {
             private var initialX = 0
             private var initialY = 0
@@ -127,7 +118,7 @@ class OverlayService : Service() {
                         if (Math.abs(dx) > 8 || Math.abs(dy) > 8) {
                             moved = true
                         }
-                        layoutParams.x = initialX - dx.toInt()
+                        layoutParams.x = initialX + dx.toInt()
                         layoutParams.y = initialY + dy.toInt()
                         windowManager.updateViewLayout(root, layoutParams)
                         return true
@@ -142,7 +133,6 @@ class OverlayService : Service() {
                 return false
             }
         })
-
         petView = root
         windowManager.addView(root, layoutParams)
         handler.post(checkRunnable)
@@ -155,7 +145,6 @@ class OverlayService : Service() {
             pkg?.let { showMessageFor(it) }
         }
     }
-
     private fun getForegroundPackage(): String? {
         return try {
             val usm = getSystemService(Context.USAGE_STATS_SERVICE) as UsageStatsManager
@@ -174,7 +163,6 @@ class OverlayService : Service() {
             null
         }
     }
-
     private fun showMessageFor(pkg: String) {
         val msg = when (pkg) {
             "com.ss.android.ugc.aweme" -> "又在刷抖音？我站你身边你没看见吗？"
@@ -185,7 +173,6 @@ class OverlayService : Service() {
         }
         msg?.let { showBubble(it) }
     }
-
     private fun showBubble(text: String = "怎么，现在才想起来看我？") {
         bubbleView?.let {
             it.text = text
@@ -199,7 +186,6 @@ class OverlayService : Service() {
             }, 3500)
         }
     }
-
     private fun buildNotification(): Notification {
         val nm = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -229,9 +215,7 @@ class OverlayService : Service() {
                 .build()
         }
     }
-
     private fun dp(v: Int): Int = (v * resources.displayMetrics.density).toInt()
-
     override fun onDestroy() {
         handler.removeCallbacksAndMessages(null)
         petView?.let { windowManager.removeView(it) }
