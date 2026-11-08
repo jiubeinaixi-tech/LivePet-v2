@@ -1,0 +1,6 @@
+<resources>
+    <style name="Theme.LivePet" parent="Theme.AppCompat.Light.NoActionBar">
+        <item name="android:windowBackground">@android:color/transparent</item>
+        <item name="android:colorAccent">#FF6B95</item>
+    </style>
+</resources>
