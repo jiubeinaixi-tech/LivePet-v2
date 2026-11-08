@@ -163,17 +163,80 @@ class OverlayService : Service() {
             null
         }
     }
+    private val tapLines = arrayOf(
+        "怎么，现在才想起来看我？",
+        "戳我干嘛？想我了就直说。",
+        "别乱点，把我点烦了我就藏起来。",
+        "我一直在这，你才发现呀？",
+        "再戳一下，我可要咬你了。",
+        "嗯？有事求我？",
+        "看着我做什么，脸红了？",
+        "你刚刚是不是偷偷看别的东西了？",
+        "我这么可爱，你忍心不理我。",
+        "说吧，又想让我陪你干嘛？"
+    )
+    private val genericLines = arrayOf(
+        "这个软件有什么好玩的？",
+        "你换方向了，我都盯着呢。",
+        "别看手机了，看我。",
+        "又在忙，都不理我。",
+        "哼，你心里还有没有我。",
+        "我陪你，别一个人刷。"
+    )
+    private val appLines: Map<String, Array<String>> = mapOf(
+        "com.ss.android.ugc.aweme" to arrayOf(
+            "又在刷抖音？我站你身边你没看见吗？",
+            "刷多久了？眼睛不要啦？",
+            "抖音有什么好看的，有我好看吗？"
+        ),
+        "com.ss.android.ugc.aweme.lite" to arrayOf(
+            "极速版也刷？你真是闲不住。",
+            "这也能一直看，服了你了。"
+        ),
+        "com.tencent.mm" to arrayOf(
+            "和谁聊得这么起劲呢？嗯？",
+            "微信又响，谁找你比我勤快？",
+            "回消息要紧，我算什么。"
+        ),
+        "com.tencent.mobileqq" to arrayOf(
+            "QQ还有人在用？你怀旧呢。",
+            "又跟谁聊天，报上名来。"
+        ),
+        "com.bilibili.app.in" to arrayOf(
+            "看视频都不带我，哼。",
+            "B站？你是不是又在追番不理我。",
+            "投币了吗就搁那看。"
+        ),
+        "com.taobao.taobao" to arrayOf(
+            "又买东西？也不问问我喜不喜欢。",
+            "购物车清空之前，先想想我。"
+        ),
+        "com.jingdong.app.mall" to arrayOf(
+            "京东白条又欠多少啦？",
+            "又剁手，拦都拦不住你。"
+        ),
+        "com.xingin.xhs" to arrayOf(
+            "小红书刷得挺欢，是不是在看帅哥。",
+            "又种草什么了？说给我听听。"
+        ),
+        "com.sina.weibo" to arrayOf(
+            "微博吃瓜呢？八卦比我重要。",
+            "别刷热搜了，看我看我。"
+        ),
+        "com.netease.cloudmusic" to arrayOf(
+            "听歌呢？分享一首给我呗。",
+            "这首歌我也会哼，要我唱吗？"
+        ),
+        "com.tencent.music" to arrayOf(
+            "放首歌给我听，我也要。"
+        )
+    )
+    private fun randomOf(arr: Array<String>): String = arr[(Math.random() * arr.size).toInt()]
     private fun showMessageFor(pkg: String) {
-        val msg = when (pkg) {
-            "com.ss.android.ugc.aweme" -> "又在刷抖音？我站你身边你没看见吗？"
-            "com.tencent.mm", "com.tencent.mobileqq" -> "和谁聊得这么起劲呢？嗯？"
-            "com.bilibili.app.in" -> "看视频都不带我，哼。"
-            "com.taobao.taobao", "com.jingdong.app.mall" -> "又买东西？也不问问我喜不喜欢。"
-            else -> null
-        }
-        msg?.let { showBubble(it) }
+        val msg = appLines[pkg]?.let { randomOf(it) } ?: randomOf(genericLines)
+        showBubble(msg)
     }
-    private fun showBubble(text: String = "怎么，现在才想起来看我？") {
+    private fun showBubble(text: String = randomOf(tapLines)) {
         bubbleView?.let {
             it.text = text
             it.visibility = View.VISIBLE
